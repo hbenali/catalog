@@ -1,0 +1,54 @@
+name: Create catalog proxy
+on:
+  workflow_dispatch:
+    inputs:
+      catalog:
+        type: string
+        description: Source remote catalog file
+        default: list
+jobs:
+  catalog-proxy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Generate catalog
+        run: |
+          rawURL="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_REF##*/}"
+          plfVersion=${GITHUB_REF##*/}
+          curl -fsSL http://storage.exoplatform.org/public/Addons/${{ inputs.catalog }}.json | jq ".[] | select(.compatibility==\"[${plfVersion}]\")" | jq -s > /tmp/filtredcatalog.json
+          cp -f /tmp/filtredcatalog.json list.json
+          mkdir -p pkgs
+          for row in $(cat /tmp/filtredcatalog.json | jq -r '.[] | @base64'); do
+            _jq() {
+            echo ${row} | base64 --decode | jq -r ${1}
+            }
+            id=$(_jq '.id')
+            version=$(_jq '.version')
+            downloadUrl=$(_jq '.downloadUrl')
+            filename="${id}-${version}.zip"
+            rm "pkgs/${id}-${version}.zip" || true
+            wget $downloadUrl -O "pkgs/${id}-${version}.zip"
+            rawDownloadURL="${rawURL}/pkgs/${id}-${version}.zip"
+            sed -i "s|$downloadUrl|${rawDownloadURL}|g" list.json
+          done
+          rm -v /tmp/filtredcatalog.json
+          curl -fsSL http://patches.exoplatform.org/catalog.json | jq ".[] | select(.compatibility==\"[${plfVersion}]\")" | jq -s > /tmp/filtredcatalog.json
+          cp -f /tmp/filtredcatalog.json patch.json
+          mkdir -p patches
+          for row in $(cat /tmp/filtredcatalog.json | jq -r '.[] | @base64'); do
+            _jq() {
+            echo ${row} | base64 --decode | jq -r ${1}
+            }
+            id=$(_jq '.id')
+            version=$(_jq '.version')
+            downloadUrl=$(_jq '.downloadUrl')
+            filename="${id}-${version}.zip"
+            rm "patches/${id}-${version}.zip" || true
+            wget $downloadUrl -O "patches/${id}-${version}.zip"
+            rawDownloadURL="${rawURL}/patches/${id}-${version}.zip"
+            sed -i "s|$downloadUrl|${rawDownloadURL}|g" patch.json
+          done
+          git add .
+          git -c user.name="Patch Generator" -c user.email="hbenali.tn+bot@gmail.com" commit -m 'Generate catalog'
+          git push origin HEAD
