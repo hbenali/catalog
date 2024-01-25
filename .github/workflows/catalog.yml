@@ -20,7 +20,7 @@ jobs:
           rawURL="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_REF##*/}"
           plfVersion=$(echo ${GITHUB_REF##*/} | grep -oP "^[0-9]+\.[0-9]+\.[0-9]+(-exo|-meed)?")
           curl -fsSL http://storage.exoplatform.org/public/Addons/${{ inputs.catalog }}.json | jq ".[] | select(.compatibility==\"[${plfVersion}]\")" | jq -s > /tmp/filtredcatalog.json
-          echo ${{ inputs.extra_addons }} | tr ',' '\n' | while read _addon ; do
+          echo ${{ inputs.extra_addons }} | tr ',' '\n' | while read addon ; do
             id=$(echo ${addon} | cut -d ':' -f1 )
             version=$(echo ${addon} | cut -d ':' -f2 )
             curl -fsSL http://storage.exoplatform.org/public/Addons/${{ inputs.catalog }}.json | jq ".[] | select((.id==\"${id}\") and (.version==\"${version}\"))" > /tmp/custcat.json
