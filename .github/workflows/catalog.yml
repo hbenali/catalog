@@ -24,7 +24,8 @@ jobs:
             id=$(echo ${addon} | cut -d ':' -f1 )
             version=$(echo ${addon} | cut -d ':' -f2 )
             curl -fsSL http://storage.exoplatform.org/public/Addons/${{ inputs.catalog }}.json | jq ".[] | select((.id==\"${id}\") and (.version==\"${version}\"))" > /tmp/custcat.json
-            cat /tmp/filtredcatalog.json /tmp/custcat.json | jq -s > /tmp/filtredcatalog.json
+            jq '. += $inputs' /tmp/filtredcatalog.json --slurpfile inputs /tmp/custcat.json > /tmp/filtredcatalog_tmp.json
+            mv /tmp/filtredcatalog_tmp.json /tmp/filtredcatalog.json
           done
           cp -f /tmp/filtredcatalog.json list.json
           mkdir -p pkgs
