@@ -6,6 +6,9 @@ on:
         type: string
         description: Source remote catalog file
         default: list
+      extra_addons:
+        type: string
+        description: extra addons list (foo:4.0.0,tar:5.0.0-M01 comma seperated)
 jobs:
   catalog-proxy:
     runs-on: ubuntu-latest
@@ -15,8 +18,14 @@ jobs:
       - name: Generate catalog
         run: |
           rawURL="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_REF##*/}"
-          plfVersion=${GITHUB_REF##*/}
+          plfVersion=$(echo ${GITHUB_REF##*/} | grep -oP "^[0-9]+\.[0-9]+\.[0-9]+(-exo|-meed)?")
           curl -fsSL http://storage.exoplatform.org/public/Addons/${{ inputs.catalog }}.json | jq ".[] | select(.compatibility==\"[${plfVersion}]\")" | jq -s > /tmp/filtredcatalog.json
+          echo ${{ inputs.extra_addons }} | tr ',' '\n' | while read _addon ; do
+            id=$(echo ${addon} | cut -d ':' -f1 )
+            version=$(echo ${addon} | cut -d ':' -f2 )
+            curl -fsSL http://storage.exoplatform.org/public/Addons/${{ inputs.catalog }}.json | jq ".[] | select((.id==\"${id}\") and (.version==\"${version}\"))" > /tmp/custcat.json
+            cat /tmp/filtredcatalog.json /tmp/custcat.json | jq -s > /tmp/filtredcatalog.json
+          done
           cp -f /tmp/filtredcatalog.json list.json
           mkdir -p pkgs
           for row in $(cat /tmp/filtredcatalog.json | jq -r '.[] | @base64'); do
