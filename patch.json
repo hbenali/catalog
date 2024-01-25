@@ -1,0 +1,38 @@
+[
+  {
+    "id": "patch-6.3.4",
+    "version": 1,
+    "unstable": false,
+    "name": "Patches for eXo Platform 6.3.4",
+    "description": "Patches for eXo Platform 6.3.4",
+    "releaseDate": "2023-02-17T10:00:00.000Z",
+    "downloadUrl": "https://raw.githubusercontent.com/hbenali/catalog/6.3.4/patches/patch-6.3.4-1.zip",
+    "vendor": "eXo",
+    "author": "eXo Support",
+    "authorEmail": "support@exoplatform.com",
+    "license": "LGPLv10",
+    "licenseUrl": "https://www.gnu.org/licenses/lgpl-3.0.txt",
+    "mustAcceptLicense": false,
+    "supportedDistributions": "enterprise",
+    "supportedApplicationServers": "tomcat",
+    "compatibility": "[6.3.4]"
+  },
+  {
+    "id": "patch-6.3.4",
+    "version": 2,
+    "unstable": false,
+    "name": "Patches for eXo Platform 6.3.4",
+    "description": "Patches for eXo Platform 6.3.4",
+    "releaseDate": "2023-03-16T10:00:00.000Z",
+    "downloadUrl": "https://raw.githubusercontent.com/hbenali/catalog/6.3.4/patches/patch-6.3.4-2.zip",
+    "vendor": "eXo",
+    "author": "eXo Support",
+    "authorEmail": "support@exoplatform.com",
+    "license": "LGPLv10",
+    "licenseUrl": "https://www.gnu.org/licenses/lgpl-3.0.txt",
+    "mustAcceptLicense": false,
+    "supportedDistributions": "enterprise",
+    "supportedApplicationServers": "tomcat",
+    "compatibility": "[6.3.4]"
+  }
+]
